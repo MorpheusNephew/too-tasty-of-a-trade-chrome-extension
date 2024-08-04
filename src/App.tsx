@@ -1,26 +1,45 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+/** @jsxImportSource @emotion/react */
+import { Button, Container, css } from "@mui/material";
+import { FC } from "react";
 
-function App() {
+const getCurrentTabId = async () => {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+  return tab.id;
+};
+
+const App: FC = () => {
+  const handleOnClick = async () => {
+    const [response] = await chrome.scripting.executeScript({
+      target: { tabId: await getCurrentTabId() },
+      func: () => {
+        console.log("I'm on your tab player");
+        return "Does this come out?";
+      },
+    });
+
+    console.log("Here is my response", { response });
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container
+      css={css`
+        text-align: center;
+        width: 200px;
+        height: 900px;
+        background-color: beige;
+      `}
+    >
+      <div
+        css={css`
+          padding-top: 3em;
+        `}
+      >
+        You like this magic?
+        <Button onClick={handleOnClick}>Click to see some browser magic</Button>
+      </div>
+    </Container>
   );
-}
+};
 
 export default App;
