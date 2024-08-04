@@ -1,24 +1,70 @@
 /** @jsxImportSource @emotion/react */
-import { Button, Container, css } from "@mui/material";
-import { FC } from "react";
+import { FC, useState } from "react";
 
-const getCurrentTabId = async () => {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+import { Button, Container, css, Grid } from "@mui/material";
 
-  return tab.id;
+import {
+  executeScriptInTab,
+  getMaximumProfit,
+  getMaximumProfitToAccept,
+  getMinimumProfitToAccept,
+  getPricesOfStrikes,
+  getProbabilityOfProfit,
+  getStrikePriceDiff,
+} from "./utils";
+
+type TastyData = {
+  pop: string;
+  strikePrices: number[];
+  maxProfit: number;
 };
 
 const App: FC = () => {
-  const handleOnClick = async () => {
-    const [response] = await chrome.scripting.executeScript({
-      target: { tabId: await getCurrentTabId() },
-      func: () => {
-        console.log("I'm on your tab player");
-        return "Does this come out?";
-      },
-    });
+  const [probabilityOfProfit, setProbabilityOfProfit] = useState<string>();
+  const [strikeDifference, setStrikeDifference] = useState<number>();
+  const [maximumProfit, setMaximumProfit] = useState<number>();
+  const [minimumProfitToAccept, setMinimumProfitToAccept] = useState<number>();
+  const [maximumProfitToAccept, setMaximumProfitToAccept] = useState<number>();
+  const [isGoodTrade, setIsGoodTrade] = useState<boolean>();
 
-    console.log("Here is my response", { response });
+  const handleOnClick = async () => {
+    try {
+      const response = await executeScriptInTab(() => {
+        const pop = getProbabilityOfProfit();
+        const maxProfit = getMaximumProfit();
+        const pricesOfStrikes = getPricesOfStrikes();
+
+        return {
+          pop,
+          maxProfit,
+          pricesOfStrikes,
+        };
+      });
+
+      const {
+        pop: [pop],
+        maxProfit: [maxProfit],
+        pricesOfStrikes: [pricesOfStrikes],
+      } = response;
+
+      const strikePriceDiff = getStrikePriceDiff(pricesOfStrikes);
+
+      const minimumProfitToAccept = getMinimumProfitToAccept(strikePriceDiff);
+      const maximumProfitToAccept = getMaximumProfitToAccept(strikePriceDiff);
+
+      const goodTradeToMake =
+        maxProfit >= minimumProfitToAccept &&
+        maxProfit <= maximumProfitToAccept;
+
+      setProbabilityOfProfit(pop);
+      setMaximumProfit(maxProfit);
+      setStrikeDifference(strikePriceDiff);
+      setMinimumProfitToAccept(minimumProfitToAccept);
+      setMaximumProfitToAccept(maximumProfitToAccept);
+      setIsGoodTrade(goodTradeToMake);
+    } catch (error) {
+      console.log("What is it", { error });
+    }
   };
 
   return (
@@ -37,6 +83,26 @@ const App: FC = () => {
       >
         You like this magic?
         <Button onClick={handleOnClick}>Click to see some browser magic</Button>
+        <Grid container>
+          <Grid item xs={12}>
+            Pop {probabilityOfProfit}
+          </Grid>
+          <Grid item xs={12}>
+            Strike diff {strikeDifference}
+          </Grid>
+          <Grid item xs={12}>
+            Max Profit {maximumProfit}
+          </Grid>
+          <Grid item xs={6}>
+            Min Profit to Taken {minimumProfitToAccept}
+          </Grid>
+          <Grid item xs={6}>
+            Max Profit to Taken {maximumProfitToAccept}
+          </Grid>
+          <Grid item xs={12}>
+            Is this a good trade? {isGoodTrade ? "Yes" : "No"}
+          </Grid>
+        </Grid>
       </div>
     </Container>
   );
