@@ -6,5 +6,6 @@
   "description": "Analyzes the selling of verticals",
   "action": {
     "default_popup": "index.html"
-  }
+  },
+  "permissions": ["activeTab", "scripting", "tabs"]
 }
