@@ -75,7 +75,14 @@ const App: FC = () => {
           padding-top: 3em;
         `}
       >
-        <Button onClick={handleOnClick}>Analyze trade</Button>
+        <Button
+          css={css`
+            margin-bottom: 1em;
+          `}
+          onClick={handleOnClick}
+        >
+          Analyze trade
+        </Button>
         <Grid container>
           <Grid item xs={12}>
             POP: {probabilityOfProfit}
