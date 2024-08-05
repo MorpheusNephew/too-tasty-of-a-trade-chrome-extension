@@ -3,13 +3,10 @@ import { FC, useState } from "react";
 
 import { Button, Container, css, Grid } from "@mui/material";
 
+import { scrapeTradeData } from "./hooks";
 import {
-  executeScriptInTab,
-  getMaximumProfit,
   getMaximumProfitToAccept,
   getMinimumProfitToAccept,
-  getPricesOfStrikes,
-  getProbabilityOfProfit,
   getStrikePriceDiff,
 } from "./utils";
 
@@ -23,23 +20,19 @@ const App: FC = () => {
 
   const handleOnClick = async () => {
     try {
-      const response = await executeScriptInTab(() => {
-        const pop = getProbabilityOfProfit();
-        const maxProfit = getMaximumProfit();
-        const pricesOfStrikes = getPricesOfStrikes();
-
-        return {
-          pop,
-          maxProfit,
-          pricesOfStrikes,
-        };
-      });
-
       const {
-        pop: [pop],
-        maxProfit: [maxProfit],
-        pricesOfStrikes: [pricesOfStrikes],
-      } = response;
+        pop: [pop, popError],
+        maxProfit: [maxProfit, maxProfitError],
+        pricesOfStrikes: [pricesOfStrikes, pricesOfStrikesError],
+      } = await scrapeTradeData();
+
+      const hasError = popError ?? maxProfitError ?? pricesOfStrikesError;
+
+      if (hasError) {
+        alert("An error has occurred");
+        console.error({ hasError });
+        return;
+      }
 
       const strikePriceDiff = getStrikePriceDiff(pricesOfStrikes);
 
@@ -57,7 +50,7 @@ const App: FC = () => {
       setMaximumProfitToAccept(maximumProfitToAccept);
       setIsGoodTrade(goodTradeToMake);
     } catch (error) {
-      console.log("What is it", { error });
+      console.log("What is it?", { error });
     }
   };
 
