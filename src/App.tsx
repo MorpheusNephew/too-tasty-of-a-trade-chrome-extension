@@ -13,12 +13,6 @@ import {
   getStrikePriceDiff,
 } from "./utils";
 
-type TastyData = {
-  pop: string;
-  strikePrices: number[];
-  maxProfit: number;
-};
-
 const App: FC = () => {
   const [probabilityOfProfit, setProbabilityOfProfit] = useState<string>();
   const [strikeDifference, setStrikeDifference] = useState<number>();
@@ -72,7 +66,7 @@ const App: FC = () => {
       css={css`
         text-align: center;
         width: 200px;
-        height: 900px;
+        height: 250px;
         background-color: beige;
       `}
     >
@@ -81,23 +75,22 @@ const App: FC = () => {
           padding-top: 3em;
         `}
       >
-        You like this magic?
-        <Button onClick={handleOnClick}>Click to see some browser magic</Button>
+        <Button onClick={handleOnClick}>Analyze trade</Button>
         <Grid container>
           <Grid item xs={12}>
-            Pop {probabilityOfProfit}
+            POP: {probabilityOfProfit}
           </Grid>
           <Grid item xs={12}>
-            Strike diff {strikeDifference}
+            Strike diff: {strikeDifference}
           </Grid>
           <Grid item xs={12}>
-            Max Profit {maximumProfit}
+            Max Profit: {maximumProfit}
           </Grid>
           <Grid item xs={6}>
-            Min Profit to Taken {minimumProfitToAccept}
+            Min Profit to take: {minimumProfitToAccept}
           </Grid>
           <Grid item xs={6}>
-            Max Profit to Taken {maximumProfitToAccept}
+            Max Profit to take: {maximumProfitToAccept}
           </Grid>
           <Grid item xs={12}>
             Is this a good trade? {isGoodTrade ? "Yes" : "No"}
