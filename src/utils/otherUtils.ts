@@ -23,5 +23,5 @@ export const getStrikePriceDiff = (strikePrices: number[]) => {
     }
   }
 
-  return Math.abs(diff);
+  return Number(Math.abs(diff).toFixed(2));
 };
